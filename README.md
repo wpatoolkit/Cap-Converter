@@ -8,7 +8,7 @@ This is a small GUI tool for Windows that can open, edit and save WPA hash infor
 
 It does not require any external programs or dependencies to be installed (such as <a href="https://www.wireshark.org/">Wireshark</a>, <a href="http://www.winpcap.org/">WinPcap</a> or <a href="http://www.tcpdump.org/">libpcap</a>). It directly reads and writes the raw bytes of the files.
 
-Before converting it is recommended that you clean your caps first <a href="http://hackforums.net/showthread.php?tid=2974396">using Wireshark</a> or with <a href="https://code.google.com/p/pyrit/">pyrit</a> using the command...
+Before converting it is recommended that you clean your caps first <a href="http://hackforums.net/showthread.php?tid=2974396">manually using Wireshark</a> or with <a href="https://code.google.com/p/pyrit/">pyrit</a> using the command...
 
 `pyrit -r INPUT.CAP -o OUTPUT.CAP strip`
 
