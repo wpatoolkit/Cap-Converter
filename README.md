@@ -1,6 +1,6 @@
 # Cap-Converter
 <p align="center"><img src="https://raw.githubusercontent.com/wpatoolkit/Cap-Converter/master/screenshot.png" /></p>
-Cap Converter is a small GUI tool for Windows that can open, edit and save WPA hash information from CAP and HCCAP files. It can...
+This is a small GUI tool for Windows that can open, edit and save WPA hash information from CAP and HCCAP files. It can...
 
 1. Convert CAP files to HCCAP files<br>
 2. Convert HCCAP files back to CAP files<br>
