@@ -12,7 +12,7 @@ Before converting it is recommended that you clean your caps first <a href="http
 
 `pyrit -r INPUT.CAP -o OUTPUT.CAP strip`
 
-to only contain one handshake for one network but even if you don't this program will still make it's best attempt at extracting the correct WPA handshake information which you can optionally edit if anything looks incorrect.
+to only contain one handshake for one network. But even if you don't this program will still make it's best attempt at extracting the correct WPA handshake information which you can optionally verify and change if anything looks incorrect.
 
 <b>How to Convert CAP to HCCAP</b><br>
 1. Press the "Open CAP..." button to open a .CAP file<br>
