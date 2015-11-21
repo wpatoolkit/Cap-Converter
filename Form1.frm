@@ -1464,26 +1464,29 @@ MsgBox "The following error occured: " & vbNewLine & "Error # " & Err.Number & v
 End Sub
 
 Private Sub Form_Load()
- txtESSID.Text = "hashcat.net"
- txtBSSID.Text = "B0:48:7A:D6:76:E2"
- txtSTA.Text = "00:25:CF:2D:B4:89"
- txtSNONCE.Text = "70 00 3E 0A D1 1B C0 A9 E4 86 79 45 9E BC BF FD" & vbNewLine & "7E E7 56 97 62 8C 37 13 65 D7 A0 5E 1B 35 D7 D8"
- txtANONCE.Text = "2F 0F 76 4C 66 32 D5 57 9C 57 C3 A9 FE 06 7A 84" & vbNewLine & "5E 22 D6 43 59 41 C1 84 38 45 DB 34 A2 F8 0D DE"
- txtEAPOL.Text = "01 03 00 75 02 01 0A 00 00 00 00 00 00 00 00 00" & vbNewLine & "01 70 00 3E 0A D1 1B C0 A9 E4 86 79 45 9E BC BF" & vbNewLine & "FD 7E E7 56 97 62 8C 37 13 65 D7 A0 5E 1B 35 D7" & vbNewLine & "D8 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" & vbNewLine & "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" & vbNewLine & "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" & vbNewLine & "00 00 16 30 14 01 00 00 0F AC 04 01 00 00 0F AC" & vbNewLine & "04 01 00 00 0F AC 02 00 00"
- txtEAPOLSIZE.Text = "121"
- txtKEYVER.Text = "2"
- txtKEYMIC.Text = "D9 F3 B5 B6 F7 44 C6 62 51 84 58 AC 6C C7 9F 11"
+ 'txtESSID.Text = "hashcat.net"
+ 'txtBSSID.Text = "B0:48:7A:D6:76:E2"
+ 'txtSTA.Text = "00:25:CF:2D:B4:89"
+ 'txtSNONCE.Text = "70 00 3E 0A D1 1B C0 A9 E4 86 79 45 9E BC BF FD" & vbNewLine & "7E E7 56 97 62 8C 37 13 65 D7 A0 5E 1B 35 D7 D8"
+ 'txtANONCE.Text = "2F 0F 76 4C 66 32 D5 57 9C 57 C3 A9 FE 06 7A 84" & vbNewLine & "5E 22 D6 43 59 41 C1 84 38 45 DB 34 A2 F8 0D DE"
+ 'txtEAPOL.Text = "01 03 00 75 02 01 0A 00 00 00 00 00 00 00 00 00" & vbNewLine & "01 70 00 3E 0A D1 1B C0 A9 E4 86 79 45 9E BC BF" & vbNewLine & "FD 7E E7 56 97 62 8C 37 13 65 D7 A0 5E 1B 35 D7" & vbNewLine & "D8 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" & vbNewLine & "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" & vbNewLine & "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" & vbNewLine & "00 00 16 30 14 01 00 00 0F AC 04 01 00 00 0F AC" & vbNewLine & "04 01 00 00 0F AC 02 00 00"
+ 'txtEAPOLSIZE.Text = "121"
+ 'txtKEYVER.Text = "2"
+ 'txtKEYMIC.Text = "D9 F3 B5 B6 F7 44 C6 62 51 84 58 AC 6C C7 9F 11"
  
  RemoveMenu GetSystemMenu(Me.hwnd, 0), 2, &H400& 'prevent resizing
  
  'Set Available Monospace Font
  Dim has_fixedsys As Boolean
+ Dim has_consolas As Boolean
  Dim has_lucida_console As Boolean
  Dim has_courier_new As Boolean
  Dim i As Integer
  For i = 0 To Screen.FontCount - 1
   If Screen.Fonts(i) = "Fixedsys" Then
    has_fixedsys = True
+  ElseIf Screen.Fonts(i) = "Consolas" Then
+   has_consolas = True
   ElseIf Screen.Fonts(i) = "Lucida Console" Then
    has_lucida_console = True
   ElseIf Screen.Fonts(i) = "Courier New" Then
@@ -1500,6 +1503,16 @@ Private Sub Form_Load()
   txtEAPOLSIZE.Font.Name = "Fixedsys": txtEAPOLSIZE.Font.Size = 9
   txtKEYVER.Font.Name = "Fixedsys": txtKEYVER.Font.Size = 9
   txtKEYMIC.Font.Name = "Fixedsys": txtKEYMIC.Font.Size = 9
+ ElseIf (has_consolas = True) Then
+  txtESSID.Font.Name = "Consolas": txtESSID.Font.Size = 10
+  txtBSSID.Font.Name = "Consolas": txtBSSID.Font.Size = 10
+  txtSTA.Font.Name = "Consolas": txtSTA.Font.Size = 10
+  txtSNONCE.Font.Name = "Consolas": txtSNONCE.Font.Size = 10
+  txtANONCE.Font.Name = "Consolas": txtANONCE.Font.Size = 10
+  txtEAPOL.Font.Name = "Consolas": txtEAPOL.Font.Size = 10
+  txtEAPOLSIZE.Font.Name = "Consolas": txtEAPOLSIZE.Font.Size = 10
+  txtKEYVER.Font.Name = "Consolas": txtKEYVER.Font.Size = 10
+  txtKEYMIC.Font.Name = "Consolas": txtKEYMIC.Font.Size = 10
  ElseIf (has_lucida_console = True) Then
   txtESSID.Font.Name = "Lucida Console": txtESSID.Font.Size = 10
   txtBSSID.Font.Name = "Lucida Console": txtBSSID.Font.Size = 10
