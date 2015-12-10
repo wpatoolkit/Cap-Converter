@@ -36,14 +36,6 @@ This program effectively merges together the functionality and adds a GUI to the
 2. <a href="https://github.com/philsmd/craft_hccap">craft_hccap</a><br>
 3. <a href="https://github.com/philsmd/hccap2cap">hccap2cap</a><br>
 
-<b>Version History</b><br>
-Version 1.2 - December 9, 2015<br>
-Added ability to read in multiple handshakes contained within a single file and save them in either cap or hccap format.<br>
-Added a right-click menu for associating this program with .hccap files.
-
-Version 1.0 - November 15, 2015<br>
-Initial release
-
 <b>VB6 Runtimes</b><br>
 This program was written in Visual Basic 6 which means it should work on any modern version of Windows but just in case you need to download the VB6 runtimes you can do so from here:
 

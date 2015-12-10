@@ -630,7 +630,7 @@ Private Sub Form_Load()
  mnuAddCAPContext.Checked = IIf(RegKeyExists(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter") Or RegKeyExists(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter"), True, False)
  mnuMakeHCCAPDefault.Checked = IIf(RegKeyExists(HKEY_CLASSES_ROOT, ".hccap\shell\open"), True, False)
  mnuMakeCAPDefault.Checked = IIf(RegKeyExists(HKEY_CLASSES_ROOT, ".pcap\shell\open") Or RegValueExists(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\open\command", "bak"), True, False)
- 
+  
  'open file passed on command line
  If (Command$ <> "") Then
   Dim cmdline_file As String
@@ -693,8 +693,8 @@ Private Sub mnuAddHCCAPContext_Click()
  mnuAddHCCAPContext.Checked = Not mnuAddHCCAPContext.Checked
  'remove context menu
  If (mnuAddHCCAPContext.Checked = False) And (RegKeyExists(HKEY_CLASSES_ROOT, ".hccap\shell\Open With Cap Converter") = True) Then
-  Call DeleteSubkey(HKEY_CLASSES_ROOT, ".hccap\shell\Open With Cap Converter\command")
-  Call DeleteSubkey(HKEY_CLASSES_ROOT, ".hccap\shell\Open With Cap Converter")
+  Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".hccap\shell\Open With Cap Converter\command")
+  Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".hccap\shell\Open With Cap Converter")
  'add context menu
  ElseIf (mnuAddHCCAPContext.Checked = True) Then
   Dim path As String
@@ -717,12 +717,12 @@ Private Sub mnuAddCAPContext_Click()
  If RegKeyExists(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell") = True Then
   'remove context menu
   If (mnuAddCAPContext.Checked = False) And (RegKeyExists(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter") = True) Then
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter\command")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".pcap\shell\Open With Cap Converter\command")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".pcap\shell\Open With Cap Converter")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter\command")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter\command")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".pcap\shell\Open With Cap Converter\command")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".pcap\shell\Open With Cap Converter")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter\command")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter")
   'add context menu
   ElseIf (mnuAddCAPContext.Checked = True) Then
    Call WriteRegistry(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter", "", ValString, "&Open With Cap Converter")
@@ -732,12 +732,12 @@ Private Sub mnuAddCAPContext_Click()
  Else
   'remove context menu
   If (mnuAddCAPContext.Checked = False) And (RegKeyExists(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter") = True) Then
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter\command")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".pcap\shell\Open With Cap Converter\command")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".pcap\shell\Open With Cap Converter")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter\command")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter\command")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".pcap\shell\Open With Cap Converter\command")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".pcap\shell\Open With Cap Converter")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter\command")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter")
   'add context menu
   ElseIf (mnuAddCAPContext.Checked = True) Then
    Call WriteRegistry(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter", "", ValString, "&Open With Cap Converter")
@@ -753,8 +753,8 @@ Private Sub mnuMakeHCCAPDefault_Click()
  mnuMakeHCCAPDefault.Checked = Not mnuMakeHCCAPDefault.Checked
  'remove association
  If (mnuMakeHCCAPDefault.Checked = False) And (RegKeyExists(HKEY_CLASSES_ROOT, ".hccap\shell\open") = True) Then
-  Call DeleteSubkey(HKEY_CLASSES_ROOT, ".hccap\shell\open\command")
-  Call DeleteSubkey(HKEY_CLASSES_ROOT, ".hccap\shell\open")
+  Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".hccap\shell\open\command")
+  Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".hccap\shell\open")
  'add association
  ElseIf (mnuMakeHCCAPDefault.Checked = True) Then
   Dim path As String
@@ -798,10 +798,10 @@ Private Sub mnuMakeCAPDefault_Click()
  Else
   'remove context menu
   If (mnuMakeCAPDefault.Checked = False) And (RegKeyExists(HKEY_CLASSES_ROOT, ".cap\shell\open") = True) Then
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".cap\shell\open\command")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".cap\shell\open")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".pcap\shell\open\command")
-   Call DeleteSubkey(HKEY_CLASSES_ROOT, ".pcap\shell\open")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".cap\shell\open\command")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".cap\shell\open")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".pcap\shell\open\command")
+   Call RegDeleteSubKey(HKEY_CLASSES_ROOT, ".pcap\shell\open")
   'add context menu
   ElseIf (mnuMakeCAPDefault.Checked = True) Then
    Call WriteRegistry(HKEY_CLASSES_ROOT, ".cap\shell\open", "", ValString, "")
