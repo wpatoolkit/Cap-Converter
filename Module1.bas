@@ -1,13 +1,15 @@
 Attribute VB_Name = "Module1"
 Option Explicit
+Public Declare Function InitCommonControlsEx Lib "comctl32.dll" (iccex As tagInitCommonControlsEx) As Boolean
 Public Declare Function GetSystemMenu Lib "user32" (ByVal hwnd As Long, ByVal bRevert As Long) As Long
 Public Declare Function RemoveMenu Lib "user32" (ByVal hMenu As Long, ByVal nPosition As Long, ByVal wFlags As Long) As Long
+Public Declare Function SetCursor Lib "user32" (ByVal hCursor As Long) As Long
+Public Declare Function LoadCursor Lib "user32" Alias "LoadCursorA" (ByVal hInstance As Long, ByVal lpCursorName As Long) As Long
 
 Public Type tagInitCommonControlsEx
  lngSize As Long
  lngICC As Long
 End Type
-Public Declare Function InitCommonControlsEx Lib "comctl32.dll" (iccex As tagInitCommonControlsEx) As Boolean
 
 Public Type hccap_record
  ESSID As String
@@ -34,8 +36,8 @@ Public Sub Main()
  InitCommonControlsEx iccex
  Load Form1
  Form1.Show
- 'Load MainForm
- 'MainForm.Show
+ 'Load Form2
+ 'Form2.Show
 End Sub
 
 Public Function hex_digits_only(input_str As String) As String
@@ -73,52 +75,3 @@ Public Function bytes2num(LoByte As Byte, HiByte As Byte) As Long
  End If
  'bytes2num = CLng("&H" & Right$("0" & Hex$(LoByte), 2) & Right$("0" & Hex$(HiByte), 2))
 End Function
-
-Public Function get_path_from_file(fileName As String) As String
- Dim pos As Integer
- pos = InStrRev(fileName, "\")
- If pos > 0 Then
-  get_path_from_file = Left$(fileName, pos)
- Else
-  get_path_from_file = ""
- End If
-End Function
-
-Public Function is_file(str As String) As Boolean
- Dim fso As Scripting.FileSystemObject
- Set fso = New Scripting.FileSystemObject
- Dim return_value As Boolean
- return_value = fso.FileExists(str)
- Set fso = Nothing
- is_file = return_value
-End Function
-
-Public Function is_folder(str As String) As Boolean
- Dim fso As Scripting.FileSystemObject
- Set fso = New Scripting.FileSystemObject
- Dim return_value As Boolean
- return_value = fso.FolderExists(str)
- Set fso = Nothing
- is_folder = return_value
-End Function
-
-'Private Type OFSTRUCT
-' cBytes As Byte
-' fFixedDisk As Byte
-' nErrCode As Integer
-' Reserved1 As Integer
-' Reserved2 As Integer
-' szPathName(128&) As Byte
-'End Type
-'Public Declare Function OpenFile Lib "kernel32" (ByVal lpFileName As String, lpReOpenBuff As OFSTRUCT, ByVal wStyle As Long) As Long
-'Public Function file_exists(ByVal file_name As String) As Boolean
-' On Error Resume Next
-' Dim open_file_result As Long
-' Dim OfSt As OFSTRUCT
-' open_file_result = OpenFile(file_name, OfSt, &H4000&)
-' If open_file_result <> -1& Then
-'  file_exists = True
-' Else
-'  file_exists = False
-' End If
-'End Function

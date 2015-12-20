@@ -159,7 +159,7 @@ Public Sub RegDeleteSubKey(ByVal Group As Long, ByVal section As String)
  RC = RegCloseKey(hKey)
  Exit Sub
 RegDeleteSubKeyError:
- Call DisplayError(RC, "RegDeleteSubKey")
+ Call DisplayRegError(RC, "RegDeleteSubKey")
 End Sub
 
 'Wrapper for the RegDeleteValue Win32 API
@@ -171,7 +171,7 @@ Public Sub DeleteValue(ByVal Group As Long, ByVal section As String, ByVal Key A
  RC = RegCloseKey(hKey)
  Exit Sub
 DeleteValueError:
- Call DisplayError(RC, "DeleteValue")
+ Call DisplayRegError(RC, "DeleteValue")
 End Sub
 
 'Wrapper for the RegOpenKeyEx and RegCloseKey Win32 API
@@ -189,11 +189,11 @@ Public Function RegKeyExists(ByVal RootKey As Long, ByVal SubKey As String) As B
   RegKeyExists = False
   Exit Function
  Else
-  Call DisplayError(RC, "RegOpenKeyEx")
+  Call DisplayRegError(RC, "RegOpenKeyEx")
  End If
  Exit Function
 RegKeyExistsError:
- Call DisplayError(RC, "RegKeyExists")
+ Call DisplayRegError(RC, "RegKeyExists")
 End Function
 
 'Wrapper for the RegOpenKeyEx, RegQueryValueEx, and RegCloseKey Win32 API
@@ -220,18 +220,18 @@ Public Function RegValueExists(ByVal RootKey As Long, ByVal SubKey As String, By
    RegValueExists = False
    Exit Function
   Else
-   Call DisplayError(RC, "RegQueryValueEx")
+   Call DisplayRegError(RC, "RegQueryValueEx")
    Call RegCloseKey(hKey)
    Exit Function
   End If
   Call RegCloseKey(hKey)
  Else
-  Call DisplayError(RC, "RegOpenKeyEx")
+  Call DisplayRegError(RC, "RegOpenKeyEx")
   Call RegCloseKey(hKey)
  End If
  Exit Function
 RegValueExistsError:
- Call DisplayError(RC, "RegValueExists")
+ Call DisplayRegError(RC, "RegValueExists")
  RegValueExists = False
 End Function
 
@@ -247,7 +247,7 @@ Public Sub WriteRegistry(ByVal Group As Long, ByVal section As String, ByVal Key
  If RC <> 0 Then GoTo WriteRegistryError
  Exit Sub
 WriteRegistryError:
- Call DisplayError(RC, "WriteRegistry")
+ Call DisplayRegError(RC, "WriteRegistry")
 End Sub
 
 'Wrapper for the RegOpenKey, RegQueryValueEx, and RegCloseKey Win32 API
@@ -286,7 +286,7 @@ Public Function ReadRegistry(ByVal Group As Long, ByVal section As String, ByVal
  ReadRegistry = sValue
 End Function
 
-Public Sub DisplayError(ByVal errNum As Integer, ByVal func As String)
+Public Sub DisplayRegError(ByVal errNum As Integer, ByVal func As String)
  Select Case errNum
   Case 0
    MsgBox "Error Accessing the Registry." & vbNewLine & vbNewLine & "Error Number: " & errNum & vbNewLine & "Error Description: ERROR_NONE" & vbNewLine & "Calling Function: " & func, vbExclamation + vbOKOnly

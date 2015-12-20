@@ -1,5 +1,4 @@
 VERSION 5.00
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form Form1 
    Caption         =   "Cap Converter"
    ClientHeight    =   10335
@@ -47,13 +46,6 @@ Begin VB.Form Form1
       TabIndex        =   23
       Top             =   375
       Width           =   495
-   End
-   Begin MSComDlg.CommonDialog CommonDialog 
-      Left            =   6960
-      Top             =   8880
-      _ExtentX        =   847
-      _ExtentY        =   847
-      _Version        =   393216
    End
    Begin VB.CommandButton btnWriteCAP 
       Caption         =   "Save As CAP..."
@@ -254,7 +246,6 @@ Begin VB.Form Form1
       Begin VB.Label lblCounter 
          Alignment       =   1  'Right Justify
          Caption         =   "0"
-         Enabled         =   0   'False
          Height          =   195
          Left            =   2760
          TabIndex        =   25
@@ -371,7 +362,7 @@ Option Explicit
 Private Sub btnNext_Click()
  If (num_hccap_records > 1) Then
   current_index = current_index + 1
-  lblCounter.Caption = current_index + 1 & "/" & num_hccap_records
+  lblCounter.caption = current_index + 1 & "/" & num_hccap_records
   If num_hccap_records - 1 > current_index Then
    btnNext.Enabled = True
   Else
@@ -397,7 +388,7 @@ End Sub
 Private Sub btnPrev_Click()
  If (num_hccap_records > 1) Then
   current_index = current_index - 1
-  lblCounter.Caption = current_index + 1 & "/" & num_hccap_records
+  lblCounter.caption = current_index + 1 & "/" & num_hccap_records
   If num_hccap_records - 1 > current_index Then
    btnNext.Enabled = True
   Else
@@ -450,46 +441,42 @@ ElseIf txtKEYMIC.Text = "" Then
  txtKEYMIC.SetFocus
  Exit Sub
 End If
-CommonDialog.fileName = ""
-CommonDialog.Filter = "CAP Files (*.cap;*.pcap;*.dmp)|*.cap;*.pcap;*.dmp|All files (*.*)|*.*"
-CommonDialog.DefaultExt = "cap"
-CommonDialog.DialogTitle = "Save CAP As"
-CommonDialog.InitDir = IIf((last_path <> ""), last_path, App.path)
-CommonDialog.ShowSave
-If (CommonDialog.CancelError = False) And (CommonDialog.fileName <> "") Then
- last_path = get_path_from_file(CommonDialog.fileName)
+
+Dim file_to_save As String
+Dim msgbox_result As VbMsgBoxResult
+file_to_save = ShowSaveFileDialog(Me.hwnd, "Save CAP As")
+If (file_to_save <> "") Then
+ If is_file(file_to_save) = True Then
+  msgbox_result = MsgBox("A file named """ & Left$(file_to_save, lstrlen(StrPtr(file_to_save))) & """ already exists. Replace?", vbExclamation + vbYesNo, "Warning")
+  If (msgbox_result = vbNo) Then
+   Call btnWriteCAP_Click
+   Exit Sub
+  End If
+ End If
  If (num_hccap_records > 1) Then
-  Dim msgbox_result As VbMsgBoxResult
   msgbox_result = MsgBox("Multiple handshakes were detected." & vbCrLf & "Would you like to save all of them to a single CAP file?" & vbCrLf & vbCrLf & "YES: will save all handshakes to a single cap file" & vbCrLf & "NO: will save only the currently selected handshake" & vbCrLf & "CANCEL: will not save anything", vbQuestion + vbYesNoCancel, "Create multi cap?")
   If (msgbox_result = vbYes) Then
-   Call WriteCAP(CommonDialog.fileName, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, False)
+   Call WriteCAP(file_to_save, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, False)
   ElseIf (msgbox_result = vbNo) Then
-   Call WriteCAP(CommonDialog.fileName, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, True)
+   Call WriteCAP(file_to_save, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, True)
   End If
  Else
-  Call WriteCAP(CommonDialog.fileName, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, True)
+  Call WriteCAP(file_to_save, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, True)
  End If
 End If
 End Sub
 
 Private Sub btnReadCAP_Click()
-CommonDialog.fileName = ""
-CommonDialog.Filter = "CAP Files (*.cap;*.pcap;*.dmp)|*.cap;*.pcap;*.dmp|All files (*.*)|*.*"
-CommonDialog.FilterIndex = 1
-CommonDialog.DefaultExt = "cap"
-CommonDialog.DialogTitle = "Choose CAP File"
-CommonDialog.InitDir = IIf((last_path <> ""), last_path, App.path)
-CommonDialog.ShowOpen
-If (CommonDialog.CancelError = False) And (CommonDialog.fileName <> "") Then
+Dim file_to_open As String
+file_to_open = ShowOpenFileDialog(Me.hwnd, "Choose CAP File")
+If (file_to_open <> "") Then
  btnReadCAP.Enabled = False
  btnReadHCCAP.Enabled = False
  btnWriteCAP.Enabled = False
  btnWriteHCCAP.Enabled = False
- last_path = get_path_from_file(CommonDialog.fileName)
- tmp_hccap_records = ReadCAP(CommonDialog.fileName)
+ tmp_hccap_records = ReadCAP(file_to_open)
  If (num_hccap_records > 0) Then
   lblCounter.Visible = True
-  lblCounter.Enabled = True
   txtESSID.Text = tmp_hccap_records(0).ESSID
   txtBSSID.Text = tmp_hccap_records(0).BSSID
   txtSTA.Text = tmp_hccap_records(0).STATION_MAC
@@ -501,8 +488,8 @@ If (CommonDialog.CancelError = False) And (CommonDialog.fileName <> "") Then
   txtKEYMIC.Text = tmp_hccap_records(0).KEY_MIC
  End If
  current_index = 0
- lblCounter.Caption = current_index + 1 & "/" & num_hccap_records
- If (current_index = 0) And (num_hccap_records = 1) Then
+ lblCounter.caption = current_index + 1 & "/" & num_hccap_records
+ If ((current_index = 0) And (num_hccap_records = 1)) Or (num_hccap_records = 0) Then
   lblCounter.Visible = False
  End If
  If num_hccap_records > 1 Then
@@ -521,19 +508,12 @@ End If
 End Sub
 
 Private Sub btnReadHCCAP_Click()
-On Error Resume Next
-CommonDialog.fileName = ""
-CommonDialog.Filter = "HCCAP Files (*.hccap)|*.hccap"
-CommonDialog.DefaultExt = "hccap"
-CommonDialog.DialogTitle = "Choose HCCAP File"
-CommonDialog.InitDir = IIf((last_path <> ""), last_path, App.path)
-CommonDialog.ShowOpen
-If (CommonDialog.CancelError = False) And (CommonDialog.fileName <> "") Then
- last_path = get_path_from_file(CommonDialog.fileName)
- tmp_hccap_records = ReadHCCAP(CommonDialog.fileName)
+Dim file_to_open As String
+file_to_open = ShowOpenFileDialog(Me.hwnd, "Choose HCCAP File")
+If (file_to_open <> "") Then
+ tmp_hccap_records = ReadHCCAP(file_to_open)
  If (num_hccap_records > 0) Then
   lblCounter.Visible = True
-  lblCounter.Enabled = True
   txtESSID.Text = tmp_hccap_records(0).ESSID
   txtBSSID.Text = tmp_hccap_records(0).BSSID
   txtSTA.Text = tmp_hccap_records(0).STATION_MAC
@@ -545,8 +525,8 @@ If (CommonDialog.CancelError = False) And (CommonDialog.fileName <> "") Then
   txtKEYMIC.Text = tmp_hccap_records(0).KEY_MIC
  End If
  current_index = 0
- lblCounter.Caption = current_index + 1 & "/" & num_hccap_records
- If (current_index = 0) And (num_hccap_records = 1) Then
+ lblCounter.caption = current_index + 1 & "/" & num_hccap_records
+ If ((current_index = 0) And (num_hccap_records = 1)) Or (num_hccap_records = 0) Then
   lblCounter.Visible = False
  End If
  If num_hccap_records > 1 Then
@@ -590,24 +570,27 @@ ElseIf txtKEYMIC.Text = "" Then
  txtKEYMIC.SetFocus
  Exit Sub
 End If
-CommonDialog.fileName = ""
-CommonDialog.Filter = "HCCAP Files (*.hccap)|*.hccap"
-CommonDialog.DefaultExt = "hccap"
-CommonDialog.DialogTitle = "Save HCCAP As"
-CommonDialog.InitDir = IIf((last_path <> ""), last_path, App.path)
-CommonDialog.ShowSave
-If (CommonDialog.CancelError = False) And (CommonDialog.fileName <> "") Then
- last_path = get_path_from_file(CommonDialog.fileName)
+
+Dim file_to_save As String
+Dim msgbox_result As VbMsgBoxResult
+file_to_save = ShowSaveFileDialog(Me.hwnd, "Save HCCAP As")
+If (file_to_save <> "") Then
+ If is_file(file_to_save) = True Then
+  msgbox_result = MsgBox("A file named """ & Left$(file_to_save, lstrlen(StrPtr(file_to_save))) & """ already exists. Replace?", vbExclamation + vbYesNo, "Warning")
+  If (msgbox_result = vbNo) Then
+   Call btnWriteHCCAP_Click
+   Exit Sub
+  End If
+ End If
  If (num_hccap_records > 1) Then
-  Dim msgbox_result As VbMsgBoxResult
   msgbox_result = MsgBox("Multiple handshakes were detected." & vbCrLf & "Would you like to save all of them to a single HCCAP file?" & vbCrLf & vbCrLf & "YES: will save all handshakes to a single multi hccap file" & vbCrLf & "NO: will save only the currently selected handshake" & vbCrLf & "CANCEL: will not save anything", vbQuestion + vbYesNoCancel, "Create multi hccap?")
   If (msgbox_result = vbYes) Then
-   Call WriteHCCAP(CommonDialog.fileName, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, False)
+   Call WriteHCCAP(file_to_save, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, False)
   ElseIf (msgbox_result = vbNo) Then
-   Call WriteHCCAP(CommonDialog.fileName, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, True)
+   Call WriteHCCAP(file_to_save, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, True)
   End If
  Else
-  Call WriteHCCAP(CommonDialog.fileName, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, True)
+  Call WriteHCCAP(file_to_save, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, True)
  End If
 End If
 End Sub
@@ -659,17 +642,15 @@ Private Sub Form_Load()
     txtKEYMIC.Text = tmp_hccap_records(0).KEY_MIC
    End If
    current_index = 0
-   lblCounter.Caption = current_index + 1 & "/" & num_hccap_records
+   lblCounter.caption = current_index + 1 & "/" & num_hccap_records
    If num_hccap_records > 1 Then
     btnNext.Enabled = True
     btnPrev.Enabled = False
     lblCounter.Visible = True
-    lblCounter.Enabled = True
    Else
     btnNext.Enabled = False
     btnPrev.Enabled = False
     lblCounter.Visible = False
-    lblCounter.Enabled = False
    End If
   End If
  End If

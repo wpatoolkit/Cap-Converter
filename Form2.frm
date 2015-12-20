@@ -1,5 +1,4 @@
 VERSION 5.00
-Object = "{F9043C88-F6F2-101A-A3C9-08002B2F49FB}#1.2#0"; "COMDLG32.OCX"
 Begin VB.Form Form2 
    Caption         =   "Cap Converter"
    ClientHeight    =   8115
@@ -58,13 +57,6 @@ Begin VB.Form Form2
       TabIndex        =   4
       Top             =   720
       Width           =   5655
-   End
-   Begin MSComDlg.CommonDialog CommonDialog1 
-      Left            =   6240
-      Top             =   120
-      _ExtentX        =   847
-      _ExtentY        =   847
-      _Version        =   393216
    End
    Begin VB.Label lblOutputFile 
       Caption         =   "Output File:"
@@ -148,23 +140,6 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Declare Function SetCursor Lib "user32" (ByVal hCursor As Long) As Long
-Private Declare Function LoadCursor Lib "user32" Alias "LoadCursorA" (ByVal hInstance As Long, ByVal lpCursorName As Long) As Long
-Private Declare Function SHBrowseForFolder Lib "shell32" (lpbi As BrowseInfo) As Long
-Private Declare Function SHGetPathFromIDList Lib "shell32" (ByVal pidList As Long, ByVal lpBuffer As String) As Long
-Private Declare Function lstrcat Lib "kernel32" Alias "lstrcatA" (ByVal lpString1 As String, ByVal lpString2 As String) As Long
-
-Private Type BrowseInfo
- hWndOwner      As Long
- pIDLRoot       As Long
- pszDisplayName As Long
- lpszTitle      As Long
- ulFlags        As Long
- lpfnCallback   As Long
- lParam         As Long
- iImage         As Long
-End Type
-
 'Output Options:
 '[ ] Extract first found handshake only
 '[ ] Combine all found handshakes into single hccap
@@ -178,15 +153,27 @@ End Type
 
 Private Sub btnInputFile_Click()
 If lblFileMode.ForeColor = &H80000012 Then 'Browse for File
- CommonDialog1.fileName = ""
- CommonDialog1.Filter = "CAP Files (*.cap;*.pcap;*.dmp)|*.cap;*.pcap;*.dmp|HCCAP Files (*.hccap)|*.hccap|All files (*.*)|*.*"
- CommonDialog1.FilterIndex = 1
- CommonDialog1.DefaultExt = "cap"
- CommonDialog1.DialogTitle = "Choose Input File"
- CommonDialog1.InitDir = IIf((last_path <> ""), last_path & "\", App.path)
- CommonDialog1.ShowOpen
- If (CommonDialog1.CancelError = False) And (CommonDialog1.fileName <> "") Then
-  txtInputFile.Text = CommonDialog1.fileName
+ Dim file_to_open As String
+ Dim OFN As OPENFILENAME
+ OFN.lStructSize = Len(OFN)
+ OFN.hwndOwner = Me.hwnd
+ OFN.hInstance = App.hInstance
+ OFN.lpstrTitle = "Choose Input File"
+ OFN.lpstrFilter = "CAP Files (*.cap;*.pcap;*.dmp)" & Chr$(0) & "*.cap;*.pcap;*.dmp" & Chr$(0) & "HCCAP Files (*.hccap)" & Chr$(0) & "*.hccap" & Chr$(0) & "All files (*.*)" & Chr$(0) & "*.*" & Chr$(0)
+ OFN.lpstrDefExt = "cap"
+ OFN.nFilterIndex = 1
+ OFN.lpstrFile = String(257, 0)
+ OFN.nMaxFile = Len(OFN.lpstrFile) - 1
+ OFN.lpstrFileTitle = OFN.lpstrFile
+ OFN.nMaxFileTitle = OFN.nMaxFile
+ OFN.lpstrInitialDir = IIf((last_path <> ""), last_path, App.path)
+ OFN.flags = 0
+ If GetOpenFileName(OFN) Then
+  last_path = get_path_from_file(Trim$(OFN.lpstrFile))
+  file_to_open = IIf(is_file(Trim$(OFN.lpstrFile)), Trim$(OFN.lpstrFile), "")
+ End If
+ If (file_to_open <> "") Then
+  txtInputFile.Text = file_to_open
   Dim fso As Scripting.FileSystemObject
   Set fso = New Scripting.FileSystemObject
   last_path = fso.GetParentFolderName(txtInputFile.Text)
@@ -195,7 +182,7 @@ If lblFileMode.ForeColor = &H80000012 Then 'Browse for File
  End If
 Else 'Browse for Directory
  Dim tBrowseInfo As BrowseInfo
- tBrowseInfo.hWndOwner = Me.hwnd
+ tBrowseInfo.hwndOwner = Me.hwnd
  tBrowseInfo.lpszTitle = lstrcat("Choose Input Directory", "")
  tBrowseInfo.ulFlags = 1 + 2 + &H4&
  Dim tmpLong As Long
@@ -213,23 +200,35 @@ End Sub
 
 Private Sub btnOutputFile_Click()
 If lblFileMode.ForeColor = &H80000012 Then 'Browse for File
- CommonDialog1.fileName = ""
- CommonDialog1.Filter = "HCCAP Files (*.hccap)|*.hccap|CAP Files (*.cap;*.pcap;*.dmp)|*.cap;*.pcap;*.dmp|All files (*.*)|*.*"
- CommonDialog1.FilterIndex = 1
- CommonDialog1.DefaultExt = "hccap"
- CommonDialog1.DialogTitle = "Choose Output File"
- CommonDialog1.InitDir = IIf((last_path <> ""), last_path & "\", App.path)
- CommonDialog1.ShowSave
- If (CommonDialog1.CancelError = False) And (CommonDialog1.fileName <> "") Then
-  txtOutputFile.Text = CommonDialog1.fileName
+ Dim file_to_save As String
+ Dim OFN As OPENFILENAME
+ OFN.lStructSize = Len(OFN)
+ OFN.hwndOwner = Me.hwnd
+ OFN.hInstance = App.hInstance
+ OFN.lpstrTitle = "Save File As"
+ OFN.lpstrFilter = "HCCAP Files (*.hccap)" & Chr$(0) & "*.hccap" & Chr$(0) & "CAP Files (*.cap;*.pcap;*.dmp)" & Chr$(0) & "*.cap;*.pcap;*.dmp" & Chr$(0) & "All files (*.*)" & Chr$(0) & "*.*" & Chr$(0)
+ OFN.lpstrDefExt = "hccap"
+ OFN.nFilterIndex = 1
+ OFN.lpstrFile = String(257, 0)
+ OFN.nMaxFile = Len(OFN.lpstrFile) - 1
+ OFN.lpstrFileTitle = OFN.lpstrFile
+ OFN.nMaxFileTitle = OFN.nMaxFile
+ OFN.lpstrInitialDir = IIf((last_path <> ""), last_path, App.path)
+ OFN.flags = 0
+ If GetSaveFileName(OFN) Then
+  last_path = get_path_from_file(Trim$(OFN.lpstrFile))
+  file_to_save = Trim$(OFN.lpstrFile)
+ End If
+ If (file_to_save <> "") Then
+  txtOutputFile.Text = file_to_save
   Dim fso As Scripting.FileSystemObject
   Set fso = New Scripting.FileSystemObject
-  last_path = fso.GetParentFolderName(CommonDialog1.fileName)
+  last_path = fso.GetParentFolderName(file_to_save)
   Set fso = Nothing
  End If
 Else
  Dim tBrowseInfo As BrowseInfo
- tBrowseInfo.hWndOwner = Me.hwnd
+ tBrowseInfo.hwndOwner = Me.hwnd
  tBrowseInfo.lpszTitle = lstrcat("Choose Output Directory", "")
  tBrowseInfo.ulFlags = 1 + 2 + &H4&
  Dim tmpLong As Long
@@ -246,9 +245,6 @@ End Sub
 
 Private Sub Form_Load()
  RemoveMenu GetSystemMenu(Me.hwnd, 0), 2, &H400& 'prevent resizing
- 
- 'txtInputFile.Text = "F:\hccap_info\3.cap"
- 'txtOutputFile.Text = "F:\hccap_info\3.hccap"
  
  'command line args
  If (Command$ <> "") Then
@@ -285,8 +281,8 @@ Private Sub lblDirectoryMode_Click()
   lblDirectoryMode.FontUnderline = False
   lblFileMode.ForeColor = &HFF0000 'blue
   lblFileMode.FontUnderline = True
-  lblInputFile.Caption = "Input Directory:"
-  lblOutputFile.Caption = "Output Directory:"
+  lblInputFile.caption = "Input Directory:"
+  lblOutputFile.caption = "Output Directory:"
   Dim fso As Scripting.FileSystemObject
   Set fso = New Scripting.FileSystemObject
   If (is_file(txtInputFile.Text) = True) Then
@@ -305,8 +301,8 @@ Private Sub lblFileMode_Click()
   lblFileMode.FontUnderline = False
   lblDirectoryMode.ForeColor = &HFF0000 'blue
   lblDirectoryMode.FontUnderline = True
-  lblInputFile.Caption = "Input File:"
-  lblOutputFile.Caption = "Output File:"
+  lblInputFile.caption = "Input File:"
+  lblOutputFile.caption = "Output File:"
   txtInputFile.Text = ""
   txtOutputFile.Text = ""
  End If
