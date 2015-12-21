@@ -447,7 +447,7 @@ Dim msgbox_result As VbMsgBoxResult
 file_to_save = ShowSaveFileDialog(Me.hwnd, "Save CAP As")
 If (file_to_save <> "") Then
  If is_file(file_to_save) = True Then
-  msgbox_result = MsgBox("A file named """ & Left$(file_to_save, lstrlen(StrPtr(file_to_save))) & """ already exists. Replace?", vbExclamation + vbYesNo, "Warning")
+  msgbox_result = MsgBox("A file named """ & file_to_save & """ already exists. Replace?", vbExclamation + vbYesNo, "Warning")
   If (msgbox_result = vbNo) Then
    Call btnWriteCAP_Click
    Exit Sub
@@ -576,7 +576,7 @@ Dim msgbox_result As VbMsgBoxResult
 file_to_save = ShowSaveFileDialog(Me.hwnd, "Save HCCAP As")
 If (file_to_save <> "") Then
  If is_file(file_to_save) = True Then
-  msgbox_result = MsgBox("A file named """ & Left$(file_to_save, lstrlen(StrPtr(file_to_save))) & """ already exists. Replace?", vbExclamation + vbYesNo, "Warning")
+  msgbox_result = MsgBox("A file named """ & file_to_save & """ already exists. Replace?", vbExclamation + vbYesNo, "Warning")
   If (msgbox_result = vbNo) Then
    Call btnWriteHCCAP_Click
    Exit Sub

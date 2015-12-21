@@ -129,8 +129,10 @@ Public Function ShowOpenFileDialog(owner_hwnd As Long, caption As String) As Str
  OFN.lpstrInitialDir = IIf((last_path <> ""), last_path, App.path)
  OFN.flags = 0
  If GetOpenFileName(OFN) Then
-  last_path = get_path_from_file(Trim$(OFN.lpstrFile))
-  ShowOpenFileDialog = IIf(is_file(Trim$(OFN.lpstrFile)), Trim$(OFN.lpstrFile), "")
+  Dim filename_to_open As String
+  filename_to_open = Left$(OFN.lpstrFile, lstrlen(StrPtr(OFN.lpstrFile)))
+  last_path = get_path_from_file(filename_to_open)
+  ShowOpenFileDialog = IIf(is_file(filename_to_open), filename_to_open, "")
  Else
   ShowOpenFileDialog = ""
  End If
@@ -159,8 +161,10 @@ Public Function ShowSaveFileDialog(owner_hwnd As Long, caption As String) As Str
  OFN.lpstrInitialDir = IIf((last_path <> ""), last_path, App.path)
  OFN.flags = 0
  If GetSaveFileName(OFN) Then
-  last_path = get_path_from_file(Trim$(OFN.lpstrFile))
-  ShowSaveFileDialog = Trim$(OFN.lpstrFile)
+  Dim filename_to_save As String
+  filename_to_save = Left$(OFN.lpstrFile, lstrlen(StrPtr(OFN.lpstrFile)))
+  last_path = get_path_from_file(filename_to_save)
+  ShowSaveFileDialog = filename_to_save
  Else
   ShowSaveFileDialog = ""
  End If
