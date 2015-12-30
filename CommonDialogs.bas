@@ -23,7 +23,7 @@ Public Type OPENFILENAME
  nMaxFileTitle As Long       'The length of lpstrFileTitle + 1
  lpstrInitialDir As String   'The path to the initial path. If you pass an empty string the initial path is the current path.
  lpstrTitle As String        'The caption of the dialog.
- flags As Long               'Flags. See the values in MSDN Library (you can look at the flags property of the common dialog control)
+ FLAGS As Long               'Flags. See the values in MSDN Library (you can look at the flags property of the common dialog control)
  nFileOffset As Integer      'Points to the what character in lpstrFile where the actual filename begins (zero based)
  nFileExtension As Integer   'Same as nFileOffset except that it points to the file extention.
  lpstrDefExt As String       'Can contain the extention Windows should add to a file if the user doesn't provide one (used with the GetSaveFileName API function)
@@ -106,6 +106,17 @@ Public Function get_path_from_file(fileName As String) As String
  End If
 End Function
 
+Public Function get_file_from_path(fileName As String) As String
+ fileName = Left$(fileName, lstrlen(StrPtr(fileName)))
+ Dim pos As Integer
+ pos = InStrRev(fileName, "\")
+ If pos > 0 Then
+  get_file_from_path = Right$(fileName, Len(fileName) - pos)
+ Else
+  get_file_from_path = ""
+ End If
+End Function
+
 Public Function ShowOpenFileDialog(owner_hwnd As Long, caption As String) As String
  Dim OFN As OPENFILENAME
  OFN.lStructSize = Len(OFN)
@@ -127,12 +138,10 @@ Public Function ShowOpenFileDialog(owner_hwnd As Long, caption As String) As Str
  OFN.lpstrFileTitle = OFN.lpstrFile
  OFN.nMaxFileTitle = OFN.nMaxFile
  OFN.lpstrInitialDir = IIf((last_path <> ""), last_path, App.path)
- OFN.flags = 0
+ OFN.FLAGS = 0
  If GetOpenFileName(OFN) Then
-  Dim filename_to_open As String
-  filename_to_open = Left$(OFN.lpstrFile, lstrlen(StrPtr(OFN.lpstrFile)))
-  last_path = get_path_from_file(filename_to_open)
-  ShowOpenFileDialog = IIf(is_file(filename_to_open), filename_to_open, "")
+  last_path = get_path_from_file(Trim$(OFN.lpstrFile))
+  ShowOpenFileDialog = IIf(is_file(Trim$(OFN.lpstrFile)), Trim$(OFN.lpstrFile), "")
  Else
   ShowOpenFileDialog = ""
  End If
@@ -159,12 +168,10 @@ Public Function ShowSaveFileDialog(owner_hwnd As Long, caption As String) As Str
  OFN.lpstrFileTitle = OFN.lpstrFile
  OFN.nMaxFileTitle = OFN.nMaxFile
  OFN.lpstrInitialDir = IIf((last_path <> ""), last_path, App.path)
- OFN.flags = 0
+ OFN.FLAGS = 0
  If GetSaveFileName(OFN) Then
-  Dim filename_to_save As String
-  filename_to_save = Left$(OFN.lpstrFile, lstrlen(StrPtr(OFN.lpstrFile)))
-  last_path = get_path_from_file(filename_to_save)
-  ShowSaveFileDialog = filename_to_save
+  last_path = get_path_from_file(Trim$(OFN.lpstrFile))
+  ShowSaveFileDialog = Trim$(OFN.lpstrFile)
  Else
   ShowSaveFileDialog = ""
  End If

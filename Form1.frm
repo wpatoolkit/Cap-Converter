@@ -8,6 +8,7 @@ Begin VB.Form Form1
    Icon            =   "Form1.frx":0000
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
+   OLEDropMode     =   1  'Manual
    ScaleHeight     =   10335
    ScaleWidth      =   7635
    StartUpPosition =   2  'CenterScreen
@@ -83,6 +84,7 @@ Begin VB.Form Form1
       Caption         =   " HCCAP Info "
       Height          =   9045
       Left            =   240
+      OLEDropMode     =   1  'Manual
       TabIndex        =   4
       Top             =   225
       Width           =   7125
@@ -338,6 +340,9 @@ Begin VB.Form Form1
    Begin VB.Menu mnuPopUp 
       Caption         =   "PopUp"
       Visible         =   0   'False
+      Begin VB.Menu mnuAlwaysOnTop 
+         Caption         =   "Always on top"
+      End
       Begin VB.Menu mnuAddHCCAPContext 
          Caption         =   "Add to context menu of .HCCAP files"
       End
@@ -441,20 +446,23 @@ ElseIf txtKEYMIC.Text = "" Then
  txtKEYMIC.SetFocus
  Exit Sub
 End If
-
 Dim file_to_save As String
-Dim msgbox_result As VbMsgBoxResult
 file_to_save = ShowSaveFileDialog(Me.hwnd, "Save CAP As")
+Call write_this_cap(file_to_save)
+End Sub
+
+Private Sub write_this_cap(file_to_save As String)
 If (file_to_save <> "") Then
+ Dim msgbox_result As VbMsgBoxResult
  If is_file(file_to_save) = True Then
-  msgbox_result = MsgBox("A file named """ & file_to_save & """ already exists. Replace?", vbExclamation + vbYesNo, "Warning")
+  msgbox_result = MsgBox("A file named """ & Left$(file_to_save, lstrlen(StrPtr(file_to_save))) & """ already exists. Replace?", vbExclamation + vbYesNo, "Warning")
   If (msgbox_result = vbNo) Then
    Call btnWriteCAP_Click
    Exit Sub
   End If
  End If
  If (num_hccap_records > 1) Then
-  msgbox_result = MsgBox("Multiple handshakes were detected." & vbCrLf & "Would you like to save all of them to a single CAP file?" & vbCrLf & vbCrLf & "YES: will save all handshakes to a single cap file" & vbCrLf & "NO: will save only the currently selected handshake" & vbCrLf & "CANCEL: will not save anything", vbQuestion + vbYesNoCancel, "Create multi cap?")
+  msgbox_result = MsgBox(current_file & " contains multiple handshakes." & vbCrLf & "Would you like to save all of them to a single CAP file?" & vbCrLf & vbCrLf & "YES: will save all handshakes to a single cap file" & vbCrLf & "NO: will save only the currently selected handshake" & vbCrLf & "CANCEL: will not save anything", vbQuestion + vbYesNoCancel, "Create multi cap?")
   If (msgbox_result = vbYes) Then
    Call WriteCAP(file_to_save, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, False)
   ElseIf (msgbox_result = vbNo) Then
@@ -466,14 +474,13 @@ If (file_to_save <> "") Then
 End If
 End Sub
 
-Private Sub btnReadCAP_Click()
-Dim file_to_open As String
-file_to_open = ShowOpenFileDialog(Me.hwnd, "Choose CAP File")
+Private Sub read_this_cap(file_to_open As String)
 If (file_to_open <> "") Then
  btnReadCAP.Enabled = False
  btnReadHCCAP.Enabled = False
  btnWriteCAP.Enabled = False
  btnWriteHCCAP.Enabled = False
+ current_file = get_file_from_path(file_to_open)
  tmp_hccap_records = ReadCAP(file_to_open)
  If (num_hccap_records > 0) Then
   lblCounter.Visible = True
@@ -507,10 +514,15 @@ If (file_to_open <> "") Then
 End If
 End Sub
 
-Private Sub btnReadHCCAP_Click()
-Dim file_to_open As String
-file_to_open = ShowOpenFileDialog(Me.hwnd, "Choose HCCAP File")
+Private Sub btnReadCAP_Click()
+ Dim file_to_open As String
+ file_to_open = ShowOpenFileDialog(Me.hwnd, "Choose CAP File")
+ Call read_this_cap(file_to_open)
+End Sub
+
+Private Sub read_this_hccap(file_to_open As String)
 If (file_to_open <> "") Then
+ current_file = get_file_from_path(file_to_open)
  tmp_hccap_records = ReadHCCAP(file_to_open)
  If (num_hccap_records > 0) Then
   lblCounter.Visible = True
@@ -538,6 +550,12 @@ If (file_to_open <> "") Then
  End If
  btnWriteCAP.SetFocus
 End If
+End Sub
+
+Private Sub btnReadHCCAP_Click()
+ Dim file_to_open As String
+ file_to_open = ShowOpenFileDialog(Me.hwnd, "Choose HCCAP File")
+ Call read_this_hccap(file_to_open)
 End Sub
 
 Private Sub btnWriteHCCAP_Click()
@@ -570,20 +588,23 @@ ElseIf txtKEYMIC.Text = "" Then
  txtKEYMIC.SetFocus
  Exit Sub
 End If
-
 Dim file_to_save As String
-Dim msgbox_result As VbMsgBoxResult
 file_to_save = ShowSaveFileDialog(Me.hwnd, "Save HCCAP As")
+Call write_this_hccap(file_to_save)
+End Sub
+
+Private Sub write_this_hccap(file_to_save As String)
 If (file_to_save <> "") Then
+ Dim msgbox_result As VbMsgBoxResult
  If is_file(file_to_save) = True Then
-  msgbox_result = MsgBox("A file named """ & file_to_save & """ already exists. Replace?", vbExclamation + vbYesNo, "Warning")
+  msgbox_result = MsgBox("A file named """ & Left$(file_to_save, lstrlen(StrPtr(file_to_save))) & """ already exists. Replace?", vbExclamation + vbYesNo, "Warning")
   If (msgbox_result = vbNo) Then
    Call btnWriteHCCAP_Click
    Exit Sub
   End If
  End If
  If (num_hccap_records > 1) Then
-  msgbox_result = MsgBox("Multiple handshakes were detected." & vbCrLf & "Would you like to save all of them to a single HCCAP file?" & vbCrLf & vbCrLf & "YES: will save all handshakes to a single multi hccap file" & vbCrLf & "NO: will save only the currently selected handshake" & vbCrLf & "CANCEL: will not save anything", vbQuestion + vbYesNoCancel, "Create multi hccap?")
+  msgbox_result = MsgBox(current_file & " contains multiple handshakes." & vbCrLf & "Would you like to save all of them to a single HCCAP file?" & vbCrLf & vbCrLf & "YES: will save all handshakes to a single multi hccap file" & vbCrLf & "NO: will save only the currently selected handshake" & vbCrLf & "CANCEL: will not save anything", vbQuestion + vbYesNoCancel, "Create multi hccap?")
   If (msgbox_result = vbYes) Then
    Call WriteHCCAP(file_to_save, txtESSID.Text, txtBSSID.Text, txtSTA.Text, txtSNONCE.Text, txtANONCE.Text, txtEAPOL.Text, txtEAPOLSIZE.Text, txtKEYVER.Text, txtKEYMIC.Text, False)
   ElseIf (msgbox_result = vbNo) Then
@@ -609,6 +630,11 @@ Private Sub Form_Load()
  
  RemoveMenu GetSystemMenu(Me.hwnd, 0), 2, &H400& 'prevent resizing
  
+ If GetSetting("CapConverter", "Preferences", "AlwaysOnTop", "") = "1" Then
+  mnuAlwaysOnTop.Checked = True
+  SetWindowPos Me.hwnd, -1&, 0&, 0&, 0&, 0&, 2& Or 1&
+ End If
+ 
  mnuAddHCCAPContext.Checked = IIf(RegKeyExists(HKEY_CLASSES_ROOT, ".hccap\shell\Open With Cap Converter"), True, False)
  mnuAddCAPContext.Checked = IIf(RegKeyExists(HKEY_CLASSES_ROOT, "wireshark-capture-file\Shell\Open With Cap Converter") Or RegKeyExists(HKEY_CLASSES_ROOT, ".cap\shell\Open With Cap Converter"), True, False)
  mnuMakeHCCAPDefault.Checked = IIf(RegKeyExists(HKEY_CLASSES_ROOT, ".hccap\shell\open"), True, False)
@@ -626,31 +652,9 @@ Private Sub Form_Load()
   End If
   If (is_file(cmdline_file)) Then 'file exists
    If Right$(cmdline_file, 6) = ".hccap" Then
-    tmp_hccap_records = ReadHCCAP(cmdline_file)
+    Call read_this_hccap(cmdline_file)
    ElseIf Right$(cmdline_file, 4) = ".cap" Or Right$(cmdline_file, 5) = ".pcap" Or Right$(cmdline_file, 4) = ".dmp" Then
-    tmp_hccap_records = ReadCAP(cmdline_file)
-   End If
-   If (num_hccap_records > 0) Then
-    txtESSID.Text = tmp_hccap_records(0).ESSID
-    txtBSSID.Text = tmp_hccap_records(0).BSSID
-    txtSTA.Text = tmp_hccap_records(0).STATION_MAC
-    txtSNONCE.Text = tmp_hccap_records(0).SNONCE
-    txtANONCE.Text = tmp_hccap_records(0).ANONCE
-    txtEAPOL.Text = tmp_hccap_records(0).EAPOL
-    txtEAPOLSIZE.Text = tmp_hccap_records(0).EAPOL_SIZE
-    txtKEYVER.Text = tmp_hccap_records(0).KEY_VERSION
-    txtKEYMIC.Text = tmp_hccap_records(0).KEY_MIC
-   End If
-   current_index = 0
-   lblCounter.caption = current_index + 1 & "/" & num_hccap_records
-   If num_hccap_records > 1 Then
-    btnNext.Enabled = True
-    btnPrev.Enabled = False
-    lblCounter.Visible = True
-   Else
-    btnNext.Enabled = False
-    btnPrev.Enabled = False
-    lblCounter.Visible = False
+    Call read_this_cap(cmdline_file)
    End If
   End If
  End If
@@ -660,6 +664,43 @@ End Sub
 Private Sub Form_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
 If Button = vbRightButton Then
  PopupMenu mnuPopUp, vbPopupMenuRightButton
+End If
+End Sub
+
+Private Sub Frame1_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
+ Call Form_OLEDragDrop(Data, Effect, Button, Shift, X, Y)
+End Sub
+
+Private Sub Form_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
+If Data.GetFormat(vbCFFiles) Then
+ Dim fso As Scripting.FileSystemObject
+ Set fso = New Scripting.FileSystemObject
+ Dim sFilename As String
+ Do While Data.Files.Count > 0
+  If Right$(Data.Files.Item(Data.Files.Count), 6) = ".hccap" Then
+   Call read_this_hccap(Data.Files.Item(Data.Files.Count))
+   Call write_this_cap(fso.GetParentFolderName(Data.Files.Item(Data.Files.Count)) & "\" & fso.GetBaseName(Data.Files.Item(Data.Files.Count)) & ".cap")
+  ElseIf Right$(Data.Files.Item(Data.Files.Count), 4) = ".cap" Or Right$(Data.Files.Item(Data.Files.Count), 5) = ".pcap" Or Right$(Data.Files.Item(Data.Files.Count), 4) = ".dmp" Then
+   Call read_this_cap(Data.Files.Item(Data.Files.Count))
+   Call write_this_hccap(fso.GetParentFolderName(Data.Files.Item(Data.Files.Count)) & "\" & fso.GetBaseName(Data.Files.Item(Data.Files.Count)) & ".hccap")
+  ElseIf is_folder(Data.Files.Item(Data.Files.Count)) = True Then 'folder
+   sFilename = Dir(Data.Files.Item(Data.Files.Count) & "\")
+   Do While sFilename > ""
+    If Right$(sFilename, 6) = ".hccap" Then
+     Call read_this_hccap(Data.Files.Item(Data.Files.Count) & "\" & sFilename)
+     If is_file(Data.Files.Item(Data.Files.Count) & "\" & fso.GetBaseName(sFilename) & ".cap") = False Then
+      Call write_this_cap(Data.Files.Item(Data.Files.Count) & "\" & fso.GetBaseName(sFilename) & ".cap")
+     End If
+    ElseIf Right$(sFilename, 4) = ".cap" Or Right$(sFilename, 5) = ".pcap" Or Right$(sFilename, 4) = ".dmp" Then
+     Call read_this_cap(Data.Files.Item(Data.Files.Count) & "\" & sFilename)
+     Call write_this_hccap(Data.Files.Item(Data.Files.Count) & "\" & fso.GetBaseName(sFilename) & ".hccap")
+    End If
+    sFilename = Dir()
+   Loop
+  End If
+  Call Data.Files.Remove(Data.Files.Count)
+ Loop
+ Set fso = Nothing
 End If
 End Sub
 
@@ -727,6 +768,19 @@ Private Sub mnuAddCAPContext_Click()
    Call WriteRegistry(HKEY_CLASSES_ROOT, ".pcap\shell\Open With Cap Converter\command", "", ValString, """" & path & """" & " %1")
   End If
  End If
+End Sub
+
+Private Sub mnuAlwaysOnTop_Click()
+If (mnuAlwaysOnTop.Checked = False) Then 'make the window topmost
+ mnuAlwaysOnTop.Checked = True
+ SetWindowPos Me.hwnd, -1&, 0&, 0&, 0&, 0&, 2& Or 1&
+ SaveSetting "CapConverter", "Preferences", "AlwaysOnTop", "1"
+ElseIf (mnuAlwaysOnTop.Checked = True) Then
+ mnuAlwaysOnTop.Checked = False
+ SetWindowPos Me.hwnd, -2&, 0&, 0&, 0&, 0&, 2& Or 1&
+ DeleteSetting "CapConverter"
+ 'DeleteSetting "CapConverter", "Preferences", "AlwaysOnTop"
+End If
 End Sub
 
 'Set as default application for .HCCAP files

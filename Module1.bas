@@ -5,6 +5,7 @@ Public Declare Function GetSystemMenu Lib "user32" (ByVal hwnd As Long, ByVal bR
 Public Declare Function RemoveMenu Lib "user32" (ByVal hMenu As Long, ByVal nPosition As Long, ByVal wFlags As Long) As Long
 Public Declare Function SetCursor Lib "user32" (ByVal hCursor As Long) As Long
 Public Declare Function LoadCursor Lib "user32" Alias "LoadCursorA" (ByVal hInstance As Long, ByVal lpCursorName As Long) As Long
+Public Declare Function SetWindowPos Lib "user32" (ByVal hwnd As Long, ByVal hWndInsertAfter As Long, ByVal X As Long, ByVal Y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
 
 Public Type tagInitCommonControlsEx
  lngSize As Long
@@ -27,6 +28,7 @@ Public last_path As String
 Public num_hccap_records As Long
 Public tmp_hccap_records() As hccap_record
 Public current_index As Long
+Public current_file As String
 
 Public Sub Main()
  On Error Resume Next
